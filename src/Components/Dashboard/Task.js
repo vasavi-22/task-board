@@ -7,7 +7,7 @@ import { faCircleCheck, faCircleExclamation, faClock } from "@fortawesome/free-s
 
 const Task = ({ task, onFormat, onViewTask }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task._id });
+    useSortable({ id: task.id });
 
   const style = {
     transition,

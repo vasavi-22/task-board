@@ -19,6 +19,7 @@ import { Button } from "primereact/button";
 import axios from "axios";
 import "./dashboard.css";
 import Task from "./Task";
+import { v4 as uuidv4 } from 'uuid';
 
 const Dashboard = () => {
   const [title, setTitle] = useState("");
@@ -51,7 +52,7 @@ const Dashboard = () => {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
-    const newTask = { title, description, status, date: new Date().toISOString()};
+    const newTask = { id: uuidv4(), title, description, status, date: new Date().toISOString()};
 
     try {
       setTasks([...tasks, newTask]);
@@ -114,8 +115,8 @@ const Dashboard = () => {
       return;
     }
 
-    const activeTask = tasks.find((task) => task._id === active.id);
-    const overTask = tasks.find((task) => task._id === over.id);
+    const activeTask = tasks.find((task) => task.id === active.id);
+    const overTask = tasks.find((task) => task.id === over.id);
 
     if (!activeTask) {
       return;
@@ -127,22 +128,8 @@ const Dashboard = () => {
       // Moving task between different lists or into an empty list
       const targetStatus = overTask ? overTask.status : over.id;
 
-      // setTasks((prevTasks) => {
-      //   const updatedTasks = prevTasks.map((task) => {
-      //     if (task._id === active.id) {
-      //       return {
-      //         ...task,
-      //         status: targetStatus, // Set the task's status to the target column's status
-      //       };
-      //     }
-      //     return task;
-      //   });
-
-      //   return updatedTasks;
-      // });
-
       updatedTasks = tasks.map((task) => {
-        if (task._id === active.id) {
+        if (task.id === active.id) {
           return {
             ...task,
             status: targetStatus, // Update task status
@@ -153,20 +140,16 @@ const Dashboard = () => {
 
     } else {
       // Reordering task within the same list
-      const activeIndex = tasks.findIndex((task) => task._id === active.id);
-      const overIndex = tasks.findIndex((task) => task._id === over.id);
+      const activeIndex = tasks.findIndex((task) => task.id === active.id);
+      const overIndex = tasks.findIndex((task) => task.id === over.id);
 
       if (activeIndex !== overIndex) {
-        // setTasks((prevTasks) => {
-        //   return arrayMove(prevTasks, activeIndex, overIndex);
-        // });
         updatedTasks = arrayMove(tasks, activeIndex, overIndex);
       }
     }
     
     if (updatedTasks) {
       setTasks(updatedTasks); // Update the state
-      // saveTasksToBackend(updatedTasks); // Save updated tasks to the backend
     }
   };
 
@@ -281,16 +264,16 @@ const Dashboard = () => {
           {["todo", "in-progress", "done"].map((status) => (
             <SortableContext
               key={status}
-              items={getFilteredTasks(status).map((task) => task._id)}
+              items={getFilteredTasks(status).map((task) => task.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="card" key={status}>
                 <p className="heading">
                   {status.toUpperCase().replace("-", " ")}
                 </p>
-                {getFilteredTasks(status).map((task, index) => (
+                {getFilteredTasks(status).map((task) => (
                   <Task
-                    key={index}
+                    key={task.id}
                     task={task}
                     onFormat={formatDate}
                     onViewTask={handleViewTask}
